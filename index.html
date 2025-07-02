@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bookshelf App</title>
+  <style>
+    /* Gaya Klasik */
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #fdf7f0;
+      color: #3c3c3c;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #6c584c;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #6c584c;
+      padding-bottom: 5px;
+      margin-top: 30px;
+    }
+
+    form {
+      background-color: #fffaf0;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #d6cfc7;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #c4b7aa;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 15px;
+      background-color: #6c584c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.1s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #5a453b;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    #incompleteBookList, #completeBookList {
+      display: grid;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    [data-testid="bookItem"] {
+      background-color: #fffaf0;
+      padding: 15px;
+      border: 1px solid #c4b7aa;
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.4s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    [data-testid="bookItem"] h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bookshelf App</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>Tambah Buku Baru</h2>
+      <form id="bookForm">
+        <label for="bookFormTitle">Judul</label>
+        <input id="bookFormTitle" type="text" required />
+
+        <label for="bookFormAuthor">Penulis</label>
+        <input id="bookFormAuthor" type="text" required />
+
+        <label for="bookFormYear">Tahun</label>
+        <input id="bookFormYear" type="number" required />
+
+        <label>
+          <input id="bookFormIsComplete" type="checkbox" />
+          Selesai dibaca
+        </label>
+
+        <button type="submit">Masukkan Buku</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Cari Buku</h2>
+      <form id="searchBook">
+        <label for="searchBookTitle">Judul</label>
+        <input id="searchBookTitle" type="text" />
+        <button type="submit">Cari</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Belum selesai dibaca</h2>
+      <div id="incompleteBookList"></div>
+    </section>
+
+    <section>
+      <h2>Selesai dibaca</h2>
+      <div id="completeBookList"></div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("bookForm");
+    const incompleteList = document.getElementById("incompleteBookList");
+    const completeList = document.getElementById("completeBookList");
+
+    let books = [];
+
+    function renderBooks() {
+      incompleteList.innerHTML = "";
+      completeList.innerHTML = "";
+
+      books.forEach((book, index) => {
+        const bookDiv = document.createElement("div");
+        bookDiv.setAttribute("data-testid", "bookItem");
+
+        bookDiv.innerHTML = `
+          <h3>${book.title}</h3>
+          <p>Penulis: ${book.author}</p>
+          <p>Tahun: ${book.year}</p>
+          <div>
+            <button onclick="toggleStatus(${index})">${book.isComplete ? "Belum selesai dibaca" : "Selesai dibaca"}</button>
+            <button onclick="deleteBook(${index})">Hapus Buku</button>
+          </div>
+        `;
+
+        if (book.isComplete) {
+          completeList.appendChild(bookDiv);
+        } else {
+          incompleteList.appendChild(bookDiv);
+        }
+      });
+    }
+
+    function toggleStatus(index) {
+      books[index].isComplete = !books[index].isComplete;
+      renderBooks();
+    }
+
+    function deleteBook(index) {
+      books.splice(index, 1);
+      renderBooks();
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = document.getElementById("bookFormTitle").value;
+      const author = document.getElementById("bookFormAuthor").value;
+      const year = document.getElementById("bookFormYear").value;
+      const isComplete = document.getElementById("bookFormIsComplete").checked;
+
+      books.push({ title, author, year, isComplete });
+      form.reset();
+      renderBooks();
+    });
+  </script>
+</body>
+</html>
